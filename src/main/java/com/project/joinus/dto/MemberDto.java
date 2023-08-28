@@ -14,7 +14,7 @@ import lombok.Setter;
 @Builder
 public class MemberDto {
   // 회원아이디
-  String memberID;
+  long memberID;
 
   // 닉네임
   String nickname;
