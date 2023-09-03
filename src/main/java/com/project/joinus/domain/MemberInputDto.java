@@ -31,6 +31,9 @@ public class MemberInputDto {
   // 관심사2
   String favorit2;
 
+  // 포인트
+  long point;
+
   // 등록일
   LocalDate regDate;
 
