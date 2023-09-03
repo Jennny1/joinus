@@ -1,10 +1,11 @@
 package com.project.joinus.repository;
 
-import com.project.joinus.dto.MemberDto;
+import com.project.joinus.domain.MemberInputDto;
+import com.project.joinus.entity.MemberEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface MemberRepository extends JpaRepository<MemberDto, Long> {
+public interface MemberRepository extends JpaRepository<MemberEntity, Long> {
 
 }

@@ -8,24 +8,28 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
 @Builder
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "member")
 public class MemberEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   // 회원아이디
-  String memberID;
+  String memberId;
 
   @Column(nullable = false)
-  // 닉네임
-  String nickname;
+  // 닉네임(유저네임)
+  String userName;
 
   @Column(nullable = false)
   // 패스워드
@@ -48,6 +52,5 @@ public class MemberEntity {
   @Column(nullable = false)
   // 등록일
   LocalDateTime regDate;
-
 
 }
