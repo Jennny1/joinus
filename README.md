@@ -75,8 +75,7 @@
 
 
 ## ERD
-![스크린샷 2023-08-23 170914](https://github.com/Jennny1/joinus/assets/59690831/6c886167-1b0d-4416-b107-5323e82ffc39)
-
+![262601451-6c886167-1b0d-4416-b107-5323e82ffc39](https://github.com/Jennny1/joinus/assets/59690831/f7e550fb-dc2a-443b-a6f5-8d851ebd5f0c)
 
 
 
