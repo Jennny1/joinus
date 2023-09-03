@@ -46,6 +46,7 @@ public class MemberController {
         .password(memberInputDto.getPassword())
         .favorit1(memberInputDto.getFavorit1())
         .favorit2(memberInputDto.getFavorit2())
+        .point(100)
         .regDate(LocalDateTime.now())
         .build();
 
