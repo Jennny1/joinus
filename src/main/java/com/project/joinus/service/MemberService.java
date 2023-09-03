@@ -1,6 +1,8 @@
 package com.project.joinus.service;
 
 
+import com.project.joinus.dto.MemberDto;
+import com.project.joinus.entity.MemberEntity;
 import com.project.joinus.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -13,8 +15,12 @@ public class MemberService {
     /*
     회원등록
      */
-    public boolean creatMember(){
-        memberRepository.
+    public void creatMember(){
+        MemberEntity memberEntity = new MemberEntity();
+        memberRepository.save(memberEntity);
+        System.out.println("멤버 등록");
     }
+
+
 
 }

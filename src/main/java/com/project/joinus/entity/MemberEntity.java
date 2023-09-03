@@ -3,6 +3,7 @@ package com.project.joinus.entity;
 import java.awt.geom.GeneralPath;
 import java.time.LocalDateTime;
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -14,6 +15,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
+@Entity
 @Table(name = "member")
 public class MemberEntity {
   @Id
