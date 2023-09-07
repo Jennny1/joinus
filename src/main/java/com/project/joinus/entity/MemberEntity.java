@@ -25,7 +25,7 @@ public class MemberEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   // 회원아이디
-  String memberId;
+  long memberId;
 
   @Column(nullable = false)
   // 닉네임(유저네임)
