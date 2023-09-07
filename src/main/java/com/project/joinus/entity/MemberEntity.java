@@ -35,9 +35,15 @@ public class MemberEntity {
   // 패스워드
   String password;
 
+  @Column(nullable = false)
+  // 이메일
+  String email;
+
+  @Column(nullable = false)
   // 관심사1
   String favorit1;
 
+  @Column(nullable = false)
   // 관심사2
   String favorit2;
 

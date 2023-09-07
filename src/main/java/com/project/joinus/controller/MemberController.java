@@ -13,10 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RestController
@@ -26,6 +23,8 @@ public class MemberController {
 
   /*
   회원등록
+  * 회원 아이디, 패스워드, 관심사1, 관심사2를 입력 받는다.
+  * 첫 가입 축하 포인트 100점을 부여한다.
   */
 
   @PostMapping("/add")
@@ -56,4 +55,16 @@ public class MemberController {
 
   }
 
+
+  /*
+  회원수정
+  * 정보 수정은 패스워드, 관심사1, 관심사2 수정이 가능하다.
+   */
+
+  @PatchMapping("/edit/{id}")
+  public void editMember(@PathVariable long id, @RequestBody @Valid MemberInputDto memberInputDto, Errors errors) {
+
+    
+
+  }
 }
