@@ -59,4 +59,7 @@ public class MemberEntity {
   // 등록일
   LocalDateTime regDate;
 
+  @Column
+  // 수정일
+  LocalDateTime updateDate;
 }

@@ -1,8 +1,11 @@
 package com.project.joinus.controller;
 
-import com.project.joinus.domain.MemberInputDto;
+import com.project.joinus.exception.EmailNotFountException;
+import com.project.joinus.model.MemberInput;
 import com.project.joinus.entity.MemberEntity;
 import com.project.joinus.error.ResponseError;
+import com.project.joinus.model.MemberPasswordInput;
+import com.project.joinus.model.MemberUpdateInput;
 import com.project.joinus.repository.MemberRepository;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -28,7 +31,7 @@ public class MemberController {
   */
 
   @PostMapping("/add")
-  public ResponseEntity<List<ResponseError>> addMember(@RequestBody @Valid MemberInputDto memberInputDto, Errors errors){
+  public ResponseEntity<List<ResponseError>> addMember(@RequestBody @Valid MemberInput memberInput, Errors errors){
     List<ResponseError> responseErrorList = new ArrayList<>();
 
     if (errors.hasErrors()) {
@@ -41,10 +44,10 @@ public class MemberController {
     }
 
     MemberEntity member = MemberEntity.builder()
-        .userName(memberInputDto.getUserName())
-        .password(memberInputDto.getPassword())
-        .favorit1(memberInputDto.getFavorit1())
-        .favorit2(memberInputDto.getFavorit2())
+        .userName(memberInput.getUserName())
+        .password(memberInput.getPassword())
+        .favorit1(memberInput.getFavorit1())
+        .favorit2(memberInput.getFavorit2())
         .point(100)
         .regDate(LocalDateTime.now())
         .build();
@@ -58,13 +61,82 @@ public class MemberController {
 
   /*
   회원수정
-  * 정보 수정은 패스워드, 관심사1, 관심사2 수정이 가능하다.
+  * 정보 수정은 email이 동일할때
+  유저이름, 관심사1, 관심사2 수정이 가능하다.
    */
 
-  @PatchMapping("/edit/{id}")
-  public void editMember(@PathVariable long id, @RequestBody @Valid MemberInputDto memberInputDto, Errors errors) {
+  @PatchMapping("/update/info/{email}")
+  public ResponseEntity<?> updateMember(@PathVariable String email, @RequestBody @Valid MemberUpdateInput memberUpdateInput, Errors errors) {
 
+    List<ResponseError> responseErrorList = new ArrayList<>();
+    if (errors.hasErrors()) {
+      errors.getAllErrors().forEach((e) -> {
+        responseErrorList.add(ResponseError.of((FieldError) e));
+      });
+
+      return new ResponseEntity<>(responseErrorList, HttpStatus.BAD_REQUEST);
+
+    }
     
+    // 이메일 검색
+    MemberInput memberInput = memberRepository.findByEmail(email).orElseThrow(() -> new EmailNotFountException("검색한 이메일 정보가 없습니다."));
+
+    String userName, favorit1, favorit2;
+
+
+    if (memberUpdateInput.getUserName().equals("")) {
+      userName = memberInput.getUserName();
+    }
+    userName = memberUpdateInput.getUserName();
+
+
+    if (memberUpdateInput.getFavorit1().equals("")) {
+      favorit1 = memberInput.getFavorit1();
+    }
+    favorit1 = memberUpdateInput.getFavorit1();
+
+
+    if (memberUpdateInput.getFavorit2().equals("")) {
+      favorit2 = memberInput.getFavorit2();
+    }
+    favorit2 = memberUpdateInput.getFavorit2();
+
+
+    MemberEntity member = MemberEntity.builder()
+            .userName(userName)
+            .favorit1(favorit1)
+            .favorit2(favorit2)
+            .updateDate(LocalDateTime.now())
+            .build();
+
+    memberRepository.save(member);
+
+    return ResponseEntity.ok().build();
 
   }
+
+  // EmailNotFountException Handler
+  @ExceptionHandler
+  public ResponseEntity<?> EmailNotFountExceptionHandler(RuntimeException exception) {
+    return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
+  }
+
+
+  /*
+  비밀번호 변경
+  기존에 입력한 비밀번호와 동일할 때 수정이 가능하다.
+   */
+
+  @PatchMapping("/update/password")
+  public void updatePassword (@RequestBody @Valid MemberPasswordInput memberPasswordInput, Errors errors) {
+
+
+
+
+
+
+
+
+  }
+
 }

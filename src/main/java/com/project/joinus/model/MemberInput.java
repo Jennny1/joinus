@@ -1,21 +1,19 @@
-package com.project.joinus.domain;
+package com.project.joinus.model;
 
-import java.time.LocalDate;
-import javax.persistence.Entity;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import java.time.LocalDateTime;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Data
-public class MemberInputDto {
+public class MemberInput {
 
   @NotBlank(message = "유저이름은 필수 입력 대상입니다.")
   // 유저이름
@@ -40,6 +38,9 @@ public class MemberInputDto {
   long point;
 
   // 등록일
-  LocalDate regDate;
+  LocalDateTime regDate;
+
+  // 수정일
+  LocalDateTime updateDate;
 
 }
