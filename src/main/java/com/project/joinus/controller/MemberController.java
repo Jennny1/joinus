@@ -7,6 +7,8 @@ import com.project.joinus.error.ResponseError;
 import com.project.joinus.model.MemberPasswordInput;
 import com.project.joinus.model.MemberUpdateInput;
 import com.project.joinus.repository.MemberRepository;
+
+import java.lang.reflect.Member;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -128,7 +130,22 @@ public class MemberController {
    */
 
   @PatchMapping("/update/password")
-  public void updatePassword (@RequestBody @Valid MemberPasswordInput memberPasswordInput, Errors errors) {
+  public ResponseEntity<?> updatePassword (@RequestBody @Valid MemberPasswordInput memberPasswordInput, Errors errors) {
+
+    List<ResponseError> responseErrorList = new ArrayList<>();
+    if (errors.hasErrors()) {
+      errors.getAllErrors().forEach((e) -> {
+        responseErrorList.add(ResponseError.of((FieldError) e));
+      });
+
+      return new ResponseEntity<>(responseErrorList, HttpStatus.BAD_REQUEST);
+
+    }
+
+    // 기존 비밀번호 검색
+    MemberInput memberInput = MemberRepository.findByPassword(memberPasswordInput.getPassword())
+            .orElseThrow("입력한 비밀번호가 일치하지 않습니다.");
+
 
 
 
