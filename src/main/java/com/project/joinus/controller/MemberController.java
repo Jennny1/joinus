@@ -1,6 +1,8 @@
 package com.project.joinus.controller;
 
 import com.project.joinus.exception.EmailNotFountException;
+import com.project.joinus.exception.PasswordNotFountException;
+import com.project.joinus.model.MemberDelete;
 import com.project.joinus.model.MemberInput;
 import com.project.joinus.entity.MemberEntity;
 import com.project.joinus.error.ResponseError;
@@ -8,11 +10,12 @@ import com.project.joinus.model.MemberPasswordInput;
 import com.project.joinus.model.MemberUpdateInput;
 import com.project.joinus.repository.MemberRepository;
 
-import java.lang.reflect.Member;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import javax.validation.Valid;
+
+import com.project.joinus.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +28,8 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/member")
 public class MemberController {
   private final MemberRepository memberRepository;
+  MemberService memberService = new MemberService;
+  ResponseError responseError = new ResponseError();
 
   /*
   회원등록
@@ -67,7 +72,7 @@ public class MemberController {
   유저이름, 관심사1, 관심사2 수정이 가능하다.
    */
 
-  @PatchMapping("/update/info/{email}")
+  @PatchMapping("/update/{email}")
   public ResponseEntity<?> updateMember(@PathVariable String email, @RequestBody @Valid MemberUpdateInput memberUpdateInput, Errors errors) {
 
     List<ResponseError> responseErrorList = new ArrayList<>();
@@ -117,20 +122,50 @@ public class MemberController {
 
   }
 
-  // EmailNotFountException Handler
-  @ExceptionHandler
-  public ResponseEntity<?> EmailNotFountExceptionHandler(RuntimeException exception) {
-    return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
-  }
 
 
   /*
   비밀번호 변경
-  기존에 입력한 비밀번호와 동일할 때 수정이 가능하다.
+  비밀번호 수정은 기존에 입력한 비밀번호와 동일할 때 가능하다.
    */
 
   @PatchMapping("/update/password")
   public ResponseEntity<?> updatePassword (@RequestBody @Valid MemberPasswordInput memberPasswordInput, Errors errors) {
+
+    List<ResponseError> responseErrorList = new ArrayList<>();
+    if (errors.hasErrors()) {
+
+      errors.getAllErrors().forEach((e) -> {
+        responseErrorList.add(ResponseError.of((FieldError) e));
+      });
+
+      return new ResponseEntity<>(responseErrorList, HttpStatus.BAD_REQUEST);
+
+    }
+
+    // 기존 비밀번호 검색
+    MemberInput memberInput = MemberRepository.findByPassword(memberPasswordInput.getPassword())
+            .orElseThrow(() -> new PasswordNotFountException("기본에 입력한 비밀번호와 다릅니다."));
+
+
+    // 비밀번호 일치
+    MemberEntity member = MemberEntity.builder()
+            .password(memberPasswordInput.getNewPassword())
+            .updateDate(LocalDateTime.now())
+            .build();
+    memberRepository.save(member);
+    return ResponseEntity.ok().build();
+
+  }
+
+
+  /*
+   회원 탈퇴시 회원 이메일이 동일할 때, 탈퇴 flag를 true로 변경한다.
+   * 회원 탈퇴 시 포인트는 0으로 초기화한다.
+   */
+
+  @PatchMapping("/deletd")
+  public ResponseEntity<List<ResponseError>> deleteMember(@RequestBody @Valid MemberDelete memberDelete, Errors errors){
 
     List<ResponseError> responseErrorList = new ArrayList<>();
     if (errors.hasErrors()) {
@@ -142,18 +177,39 @@ public class MemberController {
 
     }
 
-    // 기존 비밀번호 검색
-    MemberInput memberInput = MemberRepository.findByPassword(memberPasswordInput.getPassword())
-            .orElseThrow("입력한 비밀번호가 일치하지 않습니다.");
+    // 이메일 검색
+    MemberInput memberInput = memberRepository.findByEmail(memberDelete.getEmail())
+            .orElseThrow(() -> new EmailNotFountException("검색한 이메일 정보가 없습니다."));
 
 
 
+    // 이메일 일치
+
+    if (memberDelete.isQuit() != false) {
+      return new ResponseEntity<>(responseErrorList, HttpStatus.BAD_REQUEST);
+
+    }
+
+    MemberEntity member = MemberEntity.builder()
+            .isQuit(true)
+            .point(0)
+            .updateDate(LocalDateTime.now()).build();
 
 
-
-
-
+    memberRepository.save(member);
+    return ResponseEntity.ok().build();
 
   }
+
+
+
+  // ExceptionHandler
+  @ExceptionHandler (value = {EmailNotFountException.class, PasswordNotFountException.class})
+  public ResponseEntity<?> ExceptionHandler(RuntimeException exception) {
+    return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
+  }
+
+
+
 
 }
