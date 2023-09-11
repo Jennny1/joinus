@@ -3,6 +3,9 @@ package com.project.joinus.controller;
 import com.project.joinus.entity.MeetingEntity;
 import com.project.joinus.entity.MemberEntity;
 import com.project.joinus.error.ResponseError;
+import com.project.joinus.exception.EmailNotFountException;
+import com.project.joinus.exception.PasswordNotFountException;
+import com.project.joinus.exception.pointlessException;
 import com.project.joinus.model.MeetingCreateInput;
 import com.project.joinus.repository.MeetingRepository;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -35,6 +39,12 @@ public class MeetingController {
     최초 모집 인원은3명~10명 중 지정할 수 있다.
      */
 
+
+    @ExceptionHandler(value = {pointlessException.class})
+    public ResponseEntity<?> ExceptionHandler(RuntimeException exception) {
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
     @RequestMapping("/create")
     public ResponseEntity<?> createNewMeeting(@RequestBody MeetingCreateInput meetingCreateInput, Errors errors) {
 
@@ -46,6 +56,12 @@ public class MeetingController {
             });
 
             return new ResponseEntity<>(responseErrorList, HttpStatus.BAD_REQUEST);
+
+        }
+
+        if (meetingCreateInput.getMember().getPoint() < 500) {
+
+            new pointlessException("500점 이상인 회원만 모임을 생성할 수 있습니다.");
 
         }
 
