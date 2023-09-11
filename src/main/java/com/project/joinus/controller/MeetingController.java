@@ -3,8 +3,6 @@ package com.project.joinus.controller;
 import com.project.joinus.entity.MeetingEntity;
 import com.project.joinus.entity.MemberEntity;
 import com.project.joinus.error.ResponseError;
-import com.project.joinus.exception.EmailNotFountException;
-import com.project.joinus.exception.PasswordNotFountException;
 import com.project.joinus.exception.pointlessException;
 import com.project.joinus.model.MeetingCreateInput;
 import com.project.joinus.repository.MeetingRepository;
