@@ -11,8 +11,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class MemberDelete {
-    String email;
-    boolean isQuit;
-    long point;
-    Boolean updateDate;
+    private String email;
+    private boolean isQuit;
+    private long point;
+    private Boolean updateDate;
 }

@@ -19,19 +19,19 @@ public class MemberUpdateInput {
 
     @Email(message = "이메일은 필수 입력 대상입니다.")
     // 이메일
-    String email;
+    private String email;
 
     // 유저이름
-    String userName;
+    private String userName;
 
     // 관심사1
-    String favorit1;
+    private String favorit1;
 
     // 관심사2
-    String favorit2;
+    private String favorit2;
 
     // 수정일
-    LocalDateTime updateDate;
+    private LocalDateTime updateDate;
 
 
 

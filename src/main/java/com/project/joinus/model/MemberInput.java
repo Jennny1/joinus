@@ -17,30 +17,30 @@ public class MemberInput {
 
   @NotBlank(message = "유저이름은 필수 입력 대상입니다.")
   // 유저이름
-  String userName;
+  private String userName;
 
   @NotBlank(message = "비밀번호는 필수 입력 대상입니다.")
   // 패스워드
-  String password;
+  private String password;
 
   @Email(message = "이메일은 필수 입력 대상입니다.")
   // 이메일
-  String email;
+  private String email;
 
   @NotBlank(message = "관심사1은 필수 입력 대상입니다.")
   // 관심사1
-  String favorit1;
+  private String favorit1;
 
   // 관심사2
-  String favorit2;
+  private String favorit2;
 
   // 포인트
-  long point;
+  private long point;
 
   // 등록일
-  LocalDateTime regDate;
+  private LocalDateTime regDate;
 
   // 수정일
-  LocalDateTime updateDate;
+  private LocalDateTime updateDate;
 
 }

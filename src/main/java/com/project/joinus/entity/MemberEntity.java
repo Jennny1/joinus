@@ -25,41 +25,41 @@ public class MemberEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   // 회원아이디
-  long memberId;
+  private long memberId;
 
   @Column(nullable = false)
   // 닉네임(유저네임)
-  String userName;
+  private String userName;
 
   @Column(nullable = false)
   // 패스워드
-  String password;
+  private String password;
 
   @Column(nullable = false)
   // 이메일
-  String email;
+  private String email;
 
   @Column(nullable = false)
   // 관심사1
-  String favorit1;
+  private String favorit1;
 
   @Column(nullable = false)
   // 관심사2
-  String favorit2;
+  private String favorit2;
 
   @Column(nullable = false)
   // 탈퇴여부
-  boolean isQuit;
+  private boolean isQuit;
 
   @Column(nullable = false)
   // 포인트
-  long point;
+  private long point;
 
   @Column(nullable = false)
   // 등록일
-  LocalDateTime regDate;
+  private LocalDateTime regDate;
 
   @Column
   // 수정일
-  LocalDateTime updateDate;
+  private LocalDateTime updateDate;
 }

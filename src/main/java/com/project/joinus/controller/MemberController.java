@@ -1,21 +1,14 @@
 package com.project.joinus.controller;
 
+import com.project.joinus.entity.MemberEntity;
+import com.project.joinus.error.ResponseError;
 import com.project.joinus.exception.EmailNotFountException;
 import com.project.joinus.exception.PasswordNotFountException;
 import com.project.joinus.model.MemberDelete;
 import com.project.joinus.model.MemberInput;
-import com.project.joinus.entity.MemberEntity;
-import com.project.joinus.error.ResponseError;
 import com.project.joinus.model.MemberPasswordInput;
 import com.project.joinus.model.MemberUpdateInput;
 import com.project.joinus.repository.MemberRepository;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import javax.validation.Valid;
-
-import com.project.joinus.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,13 +16,16 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/member")
 public class MemberController {
   private final MemberRepository memberRepository;
-  MemberService memberService = new MemberService;
-  ResponseError responseError = new ResponseError();
 
   /*
   회원등록

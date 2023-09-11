@@ -15,10 +15,10 @@ public class MemberPasswordInput {
 
     @NotBlank(message = "기존 비밀번호를 입력해주세요")
     // 기존 비밀번호
-    String password;
+    private String password;
 
     @NotBlank(message = "변경할 비밀번호를 입력해주세요")
     // 새 비밀번호
-    String newPassword;
+    private String newPassword;
 
 }
