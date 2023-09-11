@@ -5,6 +5,7 @@ import com.project.joinus.entity.MemberEntity;
 import com.project.joinus.error.ResponseError;
 import com.project.joinus.exception.pointlessException;
 import com.project.joinus.model.MeetingCreateInput;
+import com.project.joinus.model.MeetingListAll;
 import com.project.joinus.repository.MeetingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -12,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -72,8 +74,7 @@ public class MeetingController {
                         .memberId(meetingCreateInput.getMember().getMemberId())
                         .password(meetingCreateInput.getMember().getPassword())
                         .email(meetingCreateInput.getMember().getEmail())
-                        .favorit1(meetingCreateInput.getMember().getFavorit1())
-                        .favorit2(meetingCreateInput.getMember().getFavorit2())
+                        .favorit(meetingCreateInput.getMember().getFavorit())
                         .point(meetingCreateInput.getMember().getPoint()-100).build())
                 .title(meetingCreateInput.getTitle())
                 .content(meetingCreateInput.getContent())
@@ -89,6 +90,37 @@ public class MeetingController {
         meetingRepository.save(meeting);
 
         return ResponseEntity.ok().build();
+    }
+    
+    
+    
+    /*
+    모임 전체 글 보기
+    벙주가 아닌 회원은 회원가입시 지정한 관심사1, 관심사2 항목으로 참여 가능한 모임을 검색한다.
+    전체 글에서는 글 제목, 관심사, 모임 날짜, 모집인원을 확인할 수 있다.
+    글 정렬은 글 제목, 관심사, 모임 날짜, 모집인원이 남아있는 경우를 조건으로 정렬한다.
+     */
+
+    @RequestMapping("list/{favorit}")
+    public ResponseEntity<?> meetingListAll(@PathVariable String favorit, @RequestBody MeetingListAll meetingListAll, Errors errors) {
+
+        List<ResponseError> responseErrorList = new ArrayList<>();
+        if (errors.hasErrors()) {
+
+            errors.getAllErrors().forEach((e) -> {
+                responseErrorList.add(ResponseError.of((FieldError) e));
+            });
+
+            return new ResponseEntity<>(responseErrorList, HttpStatus.BAD_REQUEST);
+
+        }
+
+        List<MeetingEntity> listAll =  meetingRepository.findBy
+
+
+
+
+
     }
 
 }

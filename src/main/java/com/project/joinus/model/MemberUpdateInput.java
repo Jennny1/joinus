@@ -24,11 +24,8 @@ public class MemberUpdateInput {
     // 유저이름
     private String userName;
 
-    // 관심사1
-    private String favorit1;
-
-    // 관심사2
-    private String favorit2;
+    // 관심사
+    private String favorit;
 
     // 수정일
     private LocalDateTime updateDate;

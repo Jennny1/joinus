@@ -40,12 +40,8 @@ public class MemberEntity {
   private String email;
 
   @Column(nullable = false)
-  // 관심사1
-  private String favorit1;
-
-  @Column(nullable = false)
-  // 관심사2
-  private String favorit2;
+  // 관심사
+  private String favorit;
 
   @Column(nullable = false)
   // 탈퇴여부

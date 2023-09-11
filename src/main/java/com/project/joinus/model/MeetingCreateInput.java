@@ -23,22 +23,17 @@ public class MeetingCreateInput {
     // 멤버 아이디
     private MemberEntity member;
 
-
     // 모임 제목
     private String title;
-
 
     // 모임 내용
     private String content;
 
-
     // 장소
     private String place;
 
-
     // 모임 날짜
     private LocalDateTime meetingDate;
-
 
     // 참석인원
     private int attendees;

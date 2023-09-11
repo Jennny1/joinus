@@ -28,11 +28,8 @@ public class MemberInput {
   private String email;
 
   @NotBlank(message = "관심사1은 필수 입력 대상입니다.")
-  // 관심사1
-  private String favorit1;
-
-  // 관심사2
-  private String favorit2;
+  // 관심사
+  private String favorit;
 
   // 포인트
   private long point;
