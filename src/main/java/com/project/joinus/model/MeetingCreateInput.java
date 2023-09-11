@@ -6,6 +6,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.persistence.Column;
+import javax.validation.Valid;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 
 @Data
@@ -18,18 +22,23 @@ public class MeetingCreateInput {
 
     // 멤버 아이디
     private MemberEntity member;
-    
-    // 글 제목
+
+
+    // 모임 제목
     private String title;
 
-    // 글 내용
+
+    // 모임 내용
     private String content;
+
 
     // 장소
     private String place;
 
+
     // 모임 날짜
     private LocalDateTime meetingDate;
+
 
     // 참석인원
     private int attendees;

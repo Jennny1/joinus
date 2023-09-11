@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +37,7 @@ public class MeetingController {
     모임글 생성할 때 포인트 100을 차감한다.
     모임글을 생성할 때 제목, 내용, 장소, 모집 인원, 모임 날짜, 모임 시간을 입력받는다.
     장소는 위치(지도)API를 사용한다.
-    최초 모집 인원은3명~10명 중 지정할 수 있다.
+    최초 모집 인원은 3명~10명 중 지정할 수 있다.
      */
 
 
@@ -46,7 +47,7 @@ public class MeetingController {
     }
 
     @RequestMapping("/create")
-    public ResponseEntity<?> createNewMeeting(@RequestBody MeetingCreateInput meetingCreateInput, Errors errors) {
+    public ResponseEntity<?> createNewMeeting(@RequestBody @Valid MeetingCreateInput meetingCreateInput, Errors errors) {
 
         List<ResponseError> responseErrorList = new ArrayList<>();
         if (errors.hasErrors()) {
@@ -66,6 +67,7 @@ public class MeetingController {
         }
 
 
+
         MeetingEntity meeting = MeetingEntity.builder()
                 .meetingId(meetingCreateInput.getMeetingId())
                 .member(MemberEntity.builder()
@@ -74,7 +76,7 @@ public class MeetingController {
                         .email(meetingCreateInput.getMember().getEmail())
                         .favorit1(meetingCreateInput.getMember().getFavorit1())
                         .favorit2(meetingCreateInput.getMember().getFavorit2())
-                        .point(meetingCreateInput.getMember().getPoint()).build())
+                        .point(meetingCreateInput.getMember().getPoint()-100).build())
                 .title(meetingCreateInput.getTitle())
                 .content(meetingCreateInput.getContent())
                 .place(meetingCreateInput.getPlace())
