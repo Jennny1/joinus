@@ -49,8 +49,7 @@ public class MemberController {
     MemberEntity member = MemberEntity.builder()
         .userName(memberInput.getUserName())
         .password(memberInput.getPassword())
-        .favorit1(memberInput.getFavorit1())
-        .favorit2(memberInput.getFavorit2())
+        .favorit(memberInput.getFavorit())
         .point(100)
         .regDate(LocalDateTime.now())
         .build();
@@ -84,7 +83,7 @@ public class MemberController {
     // 이메일 검색
     MemberInput memberInput = memberRepository.findByEmail(email).orElseThrow(() -> new EmailNotFountException("검색한 이메일 정보가 없습니다."));
 
-    String userName, favorit1, favorit2;
+    String userName, favoritPick;
 
 
     if (memberUpdateInput.getUserName().equals("")) {
@@ -93,22 +92,16 @@ public class MemberController {
     userName = memberUpdateInput.getUserName();
 
 
-    if (memberUpdateInput.getFavorit1().equals("")) {
-      favorit1 = memberInput.getFavorit1();
+    if (memberUpdateInput.getFavorit().equals("")) {
+      favoritPick = memberInput.getFavorit();
     }
-    favorit1 = memberUpdateInput.getFavorit1();
+    favoritPick = memberUpdateInput.getFavorit();
 
-
-    if (memberUpdateInput.getFavorit2().equals("")) {
-      favorit2 = memberInput.getFavorit2();
-    }
-    favorit2 = memberUpdateInput.getFavorit2();
 
 
     MemberEntity member = MemberEntity.builder()
             .userName(userName)
-            .favorit1(favorit1)
-            .favorit2(favorit2)
+            .favorit(favoritPick)
             .updateDate(LocalDateTime.now())
             .build();
 
@@ -125,8 +118,8 @@ public class MemberController {
   비밀번호 수정은 기존에 입력한 비밀번호와 동일할 때 가능하다.
    */
 
-  @PatchMapping("/update/password")
-  public ResponseEntity<?> updatePassword (@RequestBody @Valid MemberPasswordInput memberPasswordInput, Errors errors) {
+  @PatchMapping("/update/password/{id}")
+  public ResponseEntity<?> updatePassword (@PathVariable long id, @RequestBody @Valid MemberPasswordInput memberPasswordInput, Errors errors) {
 
     List<ResponseError> responseErrorList = new ArrayList<>();
     if (errors.hasErrors()) {
@@ -140,8 +133,7 @@ public class MemberController {
     }
 
     // 기존 비밀번호 검색
-    MemberInput memberInput = MemberRepository.findByPassword(memberPasswordInput.getPassword())
-            .orElseThrow(() -> new PasswordNotFountException("기본에 입력한 비밀번호와 다릅니다."));
+    MemberInput memberInput = memberRepository.findByIdAndPassword(id, memberPasswordInput.getPassword());
 
 
     // 비밀번호 일치
