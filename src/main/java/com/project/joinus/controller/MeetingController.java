@@ -115,12 +115,10 @@ public class MeetingController {
 
         }
 
-        List<MeetingEntity> listAll =  meetingRepository.findBy
+        List<MeetingEntity> meetingList =  meetingRepository.findByFavorit(favorit);
 
 
-
-
-
+        return ResponseEntity.ok().build();
     }
 
 }
