@@ -43,6 +43,8 @@ public class MeetingEntity {
   private LocalDateTime meetingDate;
 
 
+  // 모임 종류
+  private String favorit;
 
   // 참석인원
   @NotBlank(message = "모임 참석 인원은 필수 입력 대상입니다.")

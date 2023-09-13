@@ -2,8 +2,10 @@ package com.project.joinus.controller;
 
 import com.project.joinus.entity.MemberEntity;
 import com.project.joinus.error.ResponseError;
+import com.project.joinus.exception.EmailExistException;
 import com.project.joinus.exception.EmailNotFountException;
 import com.project.joinus.exception.PasswordNotFountException;
+import com.project.joinus.model.Member;
 import com.project.joinus.model.MemberDelete;
 import com.project.joinus.model.MemberInput;
 import com.project.joinus.model.MemberPasswordInput;
@@ -46,15 +48,25 @@ public class MemberController {
 
     }
 
-    MemberEntity member = MemberEntity.builder()
+
+    // 이메일 검색 (동일 이메일 가입 불가)
+    boolean existEmail = memberRepository.existsByEmail(memberInput.getEmail());
+
+    if (existEmail) {
+      return new ResponseEntity<>(responseErrorList, HttpStatus.BAD_REQUEST);
+    }
+
+
+    MemberEntity memberEntity = MemberEntity.builder()
         .userName(memberInput.getUserName())
         .password(memberInput.getPassword())
+        .email(memberInput.getEmail())
         .favorit(memberInput.getFavorit())
         .point(100)
         .regDate(LocalDateTime.now())
         .build();
 
-    memberRepository.save(member);
+    memberRepository.save(memberEntity);
 
     return ResponseEntity.ok().build();
 
@@ -64,11 +76,11 @@ public class MemberController {
   /*
   회원수정
   * 정보 수정은 email이 동일할때
-  유저이름, 관심사1, 관심사2 수정이 가능하다.
+  유저이름, 관심사 수정이 가능하다.
    */
 
-  @PatchMapping("/update/{email}")
-  public ResponseEntity<?> updateMember(@PathVariable String email, @RequestBody @Valid MemberUpdateInput memberUpdateInput, Errors errors) {
+  @PatchMapping("/update")
+  public ResponseEntity<?> updateMember(@RequestBody @Valid MemberUpdateInput memberUpdateInput, Errors errors) {
 
     List<ResponseError> responseErrorList = new ArrayList<>();
     if (errors.hasErrors()) {
@@ -81,9 +93,13 @@ public class MemberController {
     }
     
     // 이메일 검색
-    MemberInput memberInput = memberRepository.findByEmail(email).orElseThrow(() -> new EmailNotFountException("검색한 이메일 정보가 없습니다."));
+    MemberInput memberInput = memberRepository.findByEmail(memberUpdateInput.getEmail())
+        .orElseThrow(() -> new EmailNotFountException("검색한 이메일 정보가 없습니다."));
 
     String userName, favoritPick;
+
+    System.out.println("userName : " + memberUpdateInput.getUserName());
+    System.out.println("favofit : " + memberUpdateInput.getFavorit());
 
 
     if (memberUpdateInput.getUserName().equals("")) {
@@ -99,13 +115,13 @@ public class MemberController {
 
 
 
-    MemberEntity member = MemberEntity.builder()
+    MemberEntity memberEntity = MemberEntity.builder()
             .userName(userName)
             .favorit(favoritPick)
             .updateDate(LocalDateTime.now())
             .build();
 
-    memberRepository.save(member);
+    memberRepository.save(memberEntity);
 
     return ResponseEntity.ok().build();
 
@@ -118,8 +134,8 @@ public class MemberController {
   비밀번호 수정은 기존에 입력한 비밀번호와 동일할 때 가능하다.
    */
 
-  @PatchMapping("/update/password/{id}")
-  public ResponseEntity<?> updatePassword (@PathVariable long id, @RequestBody @Valid MemberPasswordInput memberPasswordInput, Errors errors) {
+  @PatchMapping("/update/password")
+  public ResponseEntity<?> updatePassword (@RequestBody @Valid MemberPasswordInput memberPasswordInput, Errors errors) {
 
     List<ResponseError> responseErrorList = new ArrayList<>();
     if (errors.hasErrors()) {
@@ -133,15 +149,15 @@ public class MemberController {
     }
 
     // 기존 비밀번호 검색
-    MemberInput memberInput = memberRepository.findByIdAndPassword(id, memberPasswordInput.getPassword());
+    MemberInput memberInput = memberRepository.findByUserNameAndPassword(memberPasswordInput.getUserName(), memberPasswordInput.getPassword());
 
 
     // 비밀번호 일치
-    MemberEntity member = MemberEntity.builder()
+    MemberEntity memberEntity = MemberEntity.builder()
             .password(memberPasswordInput.getNewPassword())
             .updateDate(LocalDateTime.now())
             .build();
-    memberRepository.save(member);
+    memberRepository.save(memberEntity);
     return ResponseEntity.ok().build();
 
   }
@@ -172,19 +188,18 @@ public class MemberController {
 
 
     // 이메일 일치
-
     if (memberDelete.isQuit() != false) {
       return new ResponseEntity<>(responseErrorList, HttpStatus.BAD_REQUEST);
 
     }
 
-    MemberEntity member = MemberEntity.builder()
+    MemberEntity memberEntity = MemberEntity.builder()
             .isQuit(true)
             .point(0)
             .updateDate(LocalDateTime.now()).build();
 
 
-    memberRepository.save(member);
+    memberRepository.save(memberEntity);
     return ResponseEntity.ok().build();
 
   }

@@ -1,19 +1,18 @@
 package com.project.joinus.model;
 
+import java.time.LocalDateTime;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
-import java.time.LocalDateTime;
-
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Data
-public class MemberInput {
+public class Member {
 
   @NotBlank(message = "유저이름은 필수 입력 대상입니다.")
   // 유저이름
