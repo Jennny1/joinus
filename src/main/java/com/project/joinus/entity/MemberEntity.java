@@ -28,7 +28,7 @@ public class MemberEntity {
   private long memberId;
 
   @Column(nullable = false)
-  // 닉네임(유저네임)
+  // 유저네임
   private String userName;
 
   @Column(nullable = false)
