@@ -5,11 +5,8 @@ import com.project.joinus.error.ResponseError;
 import com.project.joinus.exception.EmailExistException;
 import com.project.joinus.exception.EmailNotFountException;
 import com.project.joinus.exception.PasswordNotFountException;
-import com.project.joinus.model.Member;
-import com.project.joinus.model.MemberDelete;
-import com.project.joinus.model.MemberInput;
-import com.project.joinus.model.MemberPasswordInput;
-import com.project.joinus.model.MemberUpdateInput;
+import com.project.joinus.exception.UserNameExistException;
+import com.project.joinus.model.*;
 import com.project.joinus.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -53,18 +50,28 @@ public class MemberController {
     boolean existEmail = memberRepository.existsByEmail(memberInput.getEmail());
 
     if (existEmail) {
-      return new ResponseEntity<>(responseErrorList, HttpStatus.BAD_REQUEST);
+      throw new EmailExistException("이미 존재하는 이메일입니다.");
+
+    }
+
+
+    // 유저이름 검색 (동일 유저이름 가입 불가)
+    boolean existUserName = memberRepository.existsByUserName(memberInput.getUserName());
+
+    if (existUserName) {
+      throw new UserNameExistException("이미 존재하는 유저이름입니다.");
+
     }
 
 
     MemberEntity memberEntity = MemberEntity.builder()
-        .userName(memberInput.getUserName())
-        .password(memberInput.getPassword())
-        .email(memberInput.getEmail())
-        .favorit(memberInput.getFavorit())
-        .point(100)
-        .regDate(LocalDateTime.now())
-        .build();
+            .userName(memberInput.getUserName())
+            .password(memberInput.getPassword())
+            .email(memberInput.getEmail())
+            .favorit(memberInput.getFavorit())
+            .point(100)
+            .regDate(LocalDateTime.now())
+            .build();
 
     memberRepository.save(memberEntity);
 
@@ -75,12 +82,11 @@ public class MemberController {
 
   /*
   회원수정
-  * 정보 수정은 email이 동일할때
-  유저이름, 관심사 수정이 가능하다.
+  * 정보 수정은 email이 동일할때 관심사 수정이 가능하다.
    */
 
-  @PatchMapping("/update")
-  public ResponseEntity<?> updateMember(@RequestBody @Valid MemberUpdateInput memberUpdateInput, Errors errors) {
+  @PatchMapping("/{id}/update")
+  public ResponseEntity<?> updateMember(@PathVariable Long id, @RequestBody @Valid MemberUpdateInput memberUpdateInput, Errors errors) {
 
     List<ResponseError> responseErrorList = new ArrayList<>();
     if (errors.hasErrors()) {
@@ -91,37 +97,14 @@ public class MemberController {
       return new ResponseEntity<>(responseErrorList, HttpStatus.BAD_REQUEST);
 
     }
-    
-    // 이메일 검색
-    MemberInput memberInput = memberRepository.findByEmail(memberUpdateInput.getEmail())
-        .orElseThrow(() -> new EmailNotFountException("검색한 이메일 정보가 없습니다."));
-
-    String userName, favoritPick;
-
-    System.out.println("userName : " + memberUpdateInput.getUserName());
-    System.out.println("favofit : " + memberUpdateInput.getFavorit());
-
-
-    if (memberUpdateInput.getUserName().equals("")) {
-      userName = memberInput.getUserName();
-    }
-    userName = memberUpdateInput.getUserName();
-
-
-    if (memberUpdateInput.getFavorit().equals("")) {
-      favoritPick = memberInput.getFavorit();
-    }
-    favoritPick = memberUpdateInput.getFavorit();
-
-
 
     MemberEntity memberEntity = MemberEntity.builder()
-            .userName(userName)
-            .favorit(favoritPick)
+            .favorit(memberUpdateInput.getFavorit())
             .updateDate(LocalDateTime.now())
             .build();
 
     memberRepository.save(memberEntity);
+
 
     return ResponseEntity.ok().build();
 
@@ -181,9 +164,11 @@ public class MemberController {
 
     }
 
+/*
     // 이메일 검색
     MemberInput memberInput = memberRepository.findByEmail(memberDelete.getEmail())
             .orElseThrow(() -> new EmailNotFountException("검색한 이메일 정보가 없습니다."));
+*/
 
 
 

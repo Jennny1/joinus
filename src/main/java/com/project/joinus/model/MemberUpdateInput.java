@@ -16,16 +16,11 @@ import java.time.LocalDateTime;
 @Data
 public class MemberUpdateInput {
 
-
-    @Email(message = "이메일은 필수 입력 대상입니다.")
-    // 이메일
-    private String email;
-
-    // 유저이름
-    private String userName;
-
     // 관심사
+    @NotBlank(message = "수정할 관심사를 입력해주세요")
     private String favorit;
+
+    private String password;
 
     // 수정일
     private LocalDateTime updateDate;
