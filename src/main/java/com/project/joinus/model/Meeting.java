@@ -32,9 +32,8 @@ public class Meeting {
   @NotBlank(message = "모임 날짜는 필수 입력 대상입니다.")
   private LocalDateTime meetingDate;
 
-  // 모임분류(관심사)
-  @NotBlank(message = "모임 분류는 필수 입력 대상입니다.")
-  private String favorit;
+  // 모임 분류
+  private String classification;
 
   // 참석인원
   private int attendees;

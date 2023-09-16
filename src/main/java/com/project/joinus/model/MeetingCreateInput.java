@@ -39,6 +39,9 @@ public class MeetingCreateInput {
     // 참석인원
     private int attendees;
 
+    // 모임 분류
+    private String classification;
+
     // 취소여부
     private boolean isCalcled;
 

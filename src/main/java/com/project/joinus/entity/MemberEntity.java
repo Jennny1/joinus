@@ -5,7 +5,8 @@ import lombok.*;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
-@Data
+@Getter
+@Setter
 @Builder
 @Entity
 @NoArgsConstructor
@@ -47,4 +48,9 @@ public class MemberEntity {
     @Column
     // 수정일
     private LocalDateTime updateDate;
+
+
+    public boolean isQuit() {
+        return isQuit;
+    }
 }

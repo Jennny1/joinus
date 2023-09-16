@@ -42,9 +42,8 @@ public class MeetingEntity {
   @NotBlank(message = "모임 날짜는 필수 입력 대상입니다.")
   private LocalDateTime meetingDate;
 
-
-  // 모임 종류
-  private String favorit;
+  // 모임 분류
+  private String classification;
 
   // 참석인원
   @NotBlank(message = "모임 참석 인원은 필수 입력 대상입니다.")
@@ -61,8 +60,6 @@ public class MeetingEntity {
   // 완료여부
   private boolean isComplete;
 
-
-
   // 글 등록일
   private LocalDateTime regDate;
 
@@ -70,5 +67,15 @@ public class MeetingEntity {
   private LocalDateTime updateDate;
 
 
+  public boolean isCalcled() {
+    return isCalcled;
+  }
 
+  public boolean isLeader() {
+    return isLeader;
+  }
+
+  public boolean isComplete() {
+    return isComplete;
+  }
 }
