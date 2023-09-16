@@ -1,12 +1,12 @@
 package com.project.joinus.controller;
 
-import com.project.joinus.entity.MeetingEntity;
-import com.project.joinus.entity.MemberEntity;
 import com.project.joinus.error.ResponseError;
 import com.project.joinus.exception.pointlessException;
 import com.project.joinus.model.MeetingCreateInput;
-import com.project.joinus.model.MeetingListAll;
 import com.project.joinus.repository.MeetingRepository;
+import java.util.ArrayList;
+import java.util.List;
+import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,20 +14,17 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.validation.Valid;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/meet")
 public class MeetingController {
-    private final MeetingRepository meetingRepository;
+
+  private final MeetingRepository meetingRepository;
 
     /*
     모임 글 생성
@@ -37,35 +34,44 @@ public class MeetingController {
     모임글 생성할 때 포인트 100을 차감한다.
     모임글을 생성할 때 제목, 내용, 장소, 모집 인원, 모임 날짜, 모임 시간을 입력받는다.
     장소는 위치(지도)API를 사용한다.
-    최초 모집 인원은 3명~10명 중 지정할 수 있다.
+    모집 인원은 3명~10명 중 지정할 수 있다.
+    모임 참석인원을 지정하지 않을 경우, 3명으로 자동 지정된다.
      */
 
 
-    @ExceptionHandler(value = {pointlessException.class})
-    public ResponseEntity<?> ExceptionHandler(RuntimeException exception) {
-        return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
+  @ExceptionHandler(value = {pointlessException.class})
+  public ResponseEntity<?> ExceptionHandler(RuntimeException exception) {
+    return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
+  }
+
+  @PostMapping("/{id}/create")
+  public ResponseEntity<?> createNewMeeting(@PathVariable long id,
+      @RequestBody @Valid MeetingCreateInput meetingCreateInput, Errors errors) {
+
+    List<ResponseError> responseErrorList = new ArrayList<>();
+    if (errors.hasErrors()) {
+
+      errors.getAllErrors().forEach((e) -> {
+        responseErrorList.add(ResponseError.of((FieldError) e));
+      });
+
+      return new ResponseEntity<>(responseErrorList, HttpStatus.BAD_REQUEST);
+
     }
 
-    @RequestMapping("/create")
-    public ResponseEntity<?> createNewMeeting(@RequestBody @Valid MeetingCreateInput meetingCreateInput, Errors errors) {
+    System.out.println("회원 아이디 : " + id);
 
-        List<ResponseError> responseErrorList = new ArrayList<>();
-        if (errors.hasErrors()) {
+    // 탈퇴한 아이디 확인
 
-            errors.getAllErrors().forEach((e) -> {
-                responseErrorList.add(ResponseError.of((FieldError) e));
-            });
+    // 포인트 확인
+    if (meetingCreateInput.getMember().getPoint() < 500) {
+      throw new pointlessException("500점 이상인 회원만 모임을 생성할 수 있습니다.");
 
-            return new ResponseEntity<>(responseErrorList, HttpStatus.BAD_REQUEST);
+    }
 
-        }
 
-        if (meetingCreateInput.getMember().getPoint() < 500) {
 
-            new pointlessException("500점 이상인 회원만 모임을 생성할 수 있습니다.");
-
-        }
-
+/*
 
 
         MeetingEntity meeting = MeetingEntity.builder()
@@ -88,13 +94,14 @@ public class MeetingController {
                 .build();
 
         meetingRepository.save(meeting);
+*/
 
-        return ResponseEntity.ok().build();
-    }
-    
-    
-/*
-    *//*
+    return ResponseEntity.ok().build();
+  }
+
+
+  /*
+   *//*
     모임 전체 글 보기
     벙주가 아닌 회원은 회원가입시 지정한 관심사1, 관심사2 항목으로 참여 가능한 모임을 검색한다.
     전체 글에서는 글 제목, 관심사, 모임 날짜, 모집인원을 확인할 수 있다.

@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class MeetingCreateInput {
+
     // 모임 아이디
     private long meetingId;
 
@@ -52,7 +53,6 @@ public class MeetingCreateInput {
 
     // 글 수정일
     private LocalDateTime updateDate;
-
 
 
 }
