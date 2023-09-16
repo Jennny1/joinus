@@ -12,10 +12,12 @@ import com.project.joinus.model.MemberInput;
 import com.project.joinus.model.MemberPasswordInput;
 import com.project.joinus.model.MemberUpdateInput;
 import com.project.joinus.repository.MemberRepository;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import javax.validation.Valid;
+import jdk.vm.ci.meta.Local;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -92,8 +94,9 @@ public class MemberController {
   * 정보 수정은 email이 동일할때 관심사 수정이 가능하다.
    */
 
-  @PostMapping("/update")
-  public ResponseEntity<?> updateMember(@RequestBody @Valid MemberUpdateInput memberUpdateInput, Errors errors) {
+  @PatchMapping("/update")
+  public ResponseEntity<?> updateMember(@RequestBody @Valid MemberUpdateInput memberUpdateInput,
+      Errors errors) {
 
     List<ResponseError> responseErrorList = new ArrayList<>();
     if (errors.hasErrors()) {
@@ -106,16 +109,27 @@ public class MemberController {
     }
 
     // 이메일 검사
-    Member member = memberRepository.findByEmail(memberUpdateInput.getEmail())
+    MemberEntity member = memberRepository.findByEmail(memberUpdateInput.getEmail())
         .orElseThrow(() -> new EmailNotFoundException("입력한 이메일이 없습니다."));
 
+    System.out.println(memberUpdateInput.getEmail());
+
+    System.out.println();
+
     // 수정
-    MemberEntity memberEntity = MemberEntity.builder()
+    member = MemberEntity.builder()
+        .memberId(member.getMemberId())
+        .userName(member.getUserName())
+        .isQuit(member.isQuit())
+        .point(member.getPoint())
+        .regDate(member.getRegDate())
+        .email(member.getEmail())
+        .password(member.getPassword())
         .favorit(memberUpdateInput.getFavorit())
         .updateDate(LocalDateTime.now())
         .build();
 
-    memberRepository.save(memberEntity);
+    memberRepository.save(member);
 
     return ResponseEntity.ok().build();
 
@@ -143,24 +157,22 @@ public class MemberController {
     }
 
 
-    // 기존 이메일 검색
-    Member member = memberRepository.findByEmail(memberPasswordInput.getEmail())
+    // 이메일 검사
+    MemberEntity member = memberRepository.findByEmail(memberPasswordInput.getEmail())
         .orElseThrow(() -> new EmailNotFoundException("입력한 이메일이 없습니다."));
 
 
     // 입력한 비밀번호 일치 여부 확인하기
-
     if (!memberPasswordInput.getPassword().equals(member.getPassword())) {
       throw new PasswordNotEqualException("입력한 이메일이 동일하지 않습니다.");
     }
 
 
     // 비밀번호 일치
-    MemberEntity memberEntity = MemberEntity.builder()
-        .password(memberPasswordInput.getNewPassword())
-        .updateDate(LocalDateTime.now())
-        .build();
-    memberRepository.save(memberEntity);
+    member.setPassword(memberPasswordInput.getNewPassword());
+    member.setUpdateDate(LocalDateTime.now());
+    memberRepository.save(member);
+
     return ResponseEntity.ok().build();
 
   }
@@ -171,7 +183,7 @@ public class MemberController {
    * 회원 탈퇴 시 포인트는 0으로 초기화한다.
    */
 
-  @PatchMapping("/deletd")
+  @PatchMapping("/delete")
   public ResponseEntity<List<ResponseError>> deleteMember(
       @RequestBody @Valid MemberDelete memberDelete, Errors errors) {
 
@@ -185,24 +197,18 @@ public class MemberController {
 
     }
 
-/*
-    // 이메일 검색
-    MemberInput memberInput = memberRepository.findByEmail(memberDelete.getEmail())
-            .orElseThrow(() -> new EmailNotFountException("검색한 이메일 정보가 없습니다."));
-*/
+    // 이메일 검사
+    MemberEntity member = memberRepository.findByEmail(memberDelete.getEmail())
+        .orElseThrow(() -> new EmailNotFoundException("입력한 이메일이 없습니다."));
 
-    // 이메일 일치
-    if (memberDelete.isQuit() != false) {
-      return new ResponseEntity<>(responseErrorList, HttpStatus.BAD_REQUEST);
 
-    }
+    // 정보 수정
+    member.setQuit(true);
+    member.setPoint(0);
+    member.setUpdateDate(LocalDateTime.now());
+    memberRepository.save(member);
 
-    MemberEntity memberEntity = MemberEntity.builder()
-        .isQuit(true)
-        .point(0)
-        .updateDate(LocalDateTime.now()).build();
 
-    memberRepository.save(memberEntity);
     return ResponseEntity.ok().build();
 
   }
