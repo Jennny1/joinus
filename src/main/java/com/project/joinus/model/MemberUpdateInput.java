@@ -20,7 +20,7 @@ public class MemberUpdateInput {
     @NotBlank(message = "수정할 관심사를 입력해주세요")
     private String favorit;
 
-    private String password;
+    private String email;
 
     // 수정일
     private LocalDateTime updateDate;

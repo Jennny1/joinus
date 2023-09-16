@@ -13,9 +13,9 @@ import javax.validation.constraints.NotBlank;
 @AllArgsConstructor
 public class MemberPasswordInput {
 
-    @NotBlank(message = "기존 유저이름을 입력해주세요")
-    // 유저이름
-    private String userName;
+    @NotBlank(message = "기존 이메일을 입력해주세요")
+    // 이메일
+    private String email;
 
 
     @NotBlank(message = "기존 비밀번호를 입력해주세요")
