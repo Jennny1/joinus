@@ -3,20 +3,24 @@ package com.project.joinus.controller;
 import com.project.joinus.entity.MeetingEntity;
 import com.project.joinus.entity.MemberEntity;
 import com.project.joinus.error.ResponseError;
+import com.project.joinus.exception.FailEditAttendeesException;
+import com.project.joinus.exception.FailEditDateException;
 import com.project.joinus.exception.IdNoExistException;
+import com.project.joinus.exception.MeetingCompleteException;
 import com.project.joinus.exception.MeetingNoExistException;
+import com.project.joinus.exception.MeetingRecruitmentCompleteException;
 import com.project.joinus.exception.MemberQuitException;
 import com.project.joinus.exception.pointlessException;
 import com.project.joinus.model.MeetingCreateInput;
 import com.project.joinus.model.MeetingListDetail;
 import com.project.joinus.model.MeetingListInput;
+import com.project.joinus.model.MeetingUpdateInput;
 import com.project.joinus.repository.MeetingRepository;
 import com.project.joinus.repository.MemberRepository;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -28,6 +32,7 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -58,12 +63,6 @@ public class MeetingController {
     모임 참석인원을 지정하지 않을 경우, 3명으로 자동 지정된다.
      */
 
-
-  @ExceptionHandler(value = {pointlessException.class, IdNoExistException.class,
-      MemberQuitException.class})
-  public ResponseEntity<?> ExceptionHandler(RuntimeException exception) {
-    return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
-  }
 
   @PostMapping("/{id}/create")
   public ResponseEntity<?> createNewMeeting(@PathVariable long id,
@@ -114,6 +113,8 @@ public class MeetingController {
         .meetingDate(dateTime)
         .classification(meetingCreateInput.getClassification())
         .attendees(meetingCreateInput.getAttendees())
+        .recruitment(1)
+        .remain(meetingCreateInput.getAttendees() - 1)
         .regDate(LocalDateTime.now())
         .build();
 
@@ -148,7 +149,10 @@ public class MeetingController {
 
   /*
   모임 전체 글 보기
-  최근글 노출
+
+  회원은 회원가입시 지정한 관심사로 항목으로 참여 가능한 모임을 검색한다.
+  전체 글에서는 글 제목, 관심사, 모임 날짜, 모집인원을 확인할 수 있다.
+  글 정렬은 모임 날짜를 조건으로 정렬한다.
    */
   @GetMapping("/list/latest/{size}")
   public Page<MeetingEntity> meetingListLatest(@PathVariable int size) {
@@ -161,6 +165,7 @@ public class MeetingController {
 
   /*
   관심사별 글 보기
+  관심사별로 모임 목록을 호출
    */
 
   @GetMapping("/list/favorit/{size}")
@@ -175,18 +180,150 @@ public class MeetingController {
   }
 
   /*
-  모임 글 상세보기
+  모임 글 상세 보기
+  상세보기 기능에서 모임 글 제목, 내용, 모임 장소, 신청 가능 인원, 모집 대상 인원, 모집 완료 여부를 확인할 수 있다.
+
    */
   @GetMapping("/detail/{id}")
-  public void meetingListDetail(@PathVariable long id,
-      @RequestBody MeetingListDetail meetingListDetail) {
+  public MeetingListDetail meetingListDetail(@PathVariable long id) {
 
-    Optional<MeetingEntity> meeting = Optional.ofNullable(meetingRepository.findById(id)
-        .orElseThrow(() -> new MeetingNoExistException("모임 글이 없습니다.")));
+    MeetingEntity meeting = meetingRepository.findById(id)
+        .orElseThrow(() -> new MeetingNoExistException("모임 글이 없습니다."));
 
+    MeetingListDetail detail = new MeetingListDetail();
 
+    // 완료여부 확인
+    detail.setTitle(meeting.getTitle());
+    detail.setContent(meeting.getContent());
+    detail.setPlace(meeting.getPlace());
+    detail.setMeetingDate(meeting.getMeetingDate());
+    detail.setClassification(meeting.getClassification());
+    detail.setAttendees(meeting.getAttendees());
+    detail.setRecruitment(meeting.getRecruitment());
+    detail.setRemain(meeting.getRemain());
+    return detail;
 
   }
+
+  /*
+  모임 글 수정
+  모임 글은 모임 글을 생성한 회원(벙주)만 해당 글을 수정할 수 있다.
+  글 제목, 내용, 모집인원을 변경할 수 있다.
+  모집 완료가 된 경우에는 글을 수정할 수 없다.
+  모임 장소는 수정할 수 없다.
+  모임 장소 변경은 글을 삭제 후 다시 생성해야 한다.
+   */
+
+  @PatchMapping("/detail/edit/{id}")
+  public ResponseEntity<?> MeetingUpdate(@PathVariable long id,
+      @RequestBody MeetingUpdateInput meetingUpdateInput) {
+
+    MeetingEntity meeting = meetingRepository.findById(id)
+        .orElseThrow(() -> new MeetingNoExistException("모임 글이 없습니다."));
+
+    // 모집완료여부 확인
+    if (meeting.getRemain() == 0) {
+      throw new MeetingRecruitmentCompleteException("모집이 완료된 모임은 수정할 수 없습니다.");
+    }
+
+    // 종료 여부 확인
+    if (meeting.isComplete()) {
+      throw new MeetingCompleteException("모임이 종료된 이후 수정할 수 없습니다.");
+    }
+
+    // 모임 펑 여부 확인
+    if (meeting.isCalcled()) {
+      throw new MeetingCompleteException("취소(펑)된 모임은 수정할 수 없습니다.");
+    }
+
+    // 모임 제목
+    if (meetingUpdateInput.getTitle() != null) {
+      meeting.setTitle(compareUpdate(meeting.getTitle(), meetingUpdateInput.getTitle()));
+    }
+
+    // 모임 내용
+    if (meetingUpdateInput.getContent() != null) {
+      meeting.setContent(compareUpdate(meeting.getContent(), meetingUpdateInput.getContent()));
+    }
+    meeting.setContent(meeting.getContent());
+
+    // 장소
+    if (meetingUpdateInput.getPlace() != null) {
+      meeting.setPlace(compareUpdate(meeting.getPlace(), meetingUpdateInput.getPlace()));
+    }
+    meeting.setPlace(meeting.getPlace());
+
+    // 모임 날짜
+    if (meetingUpdateInput.getMeetingDate() != null) {
+      int dateCompare = meetingUpdateInput.getMeetingDate().compareTo(LocalDateTime.now());
+
+      if (dateCompare < 0) {
+        throw new FailEditDateException("모임 날짜는 오늘 날짜 이후여야 합니다.");
+
+      }
+      meeting.setMeetingDate(meetingUpdateInput.getMeetingDate());
+
+    }
+
+    // 모임 인원
+    int beforeAttendees = meeting.getAttendees();
+    int afterAttendees = meetingUpdateInput.getAttendees();
+    int recruitment = meeting.getRecruitment();
+    int remain = meeting.getRecruitment();
+
+    if (afterAttendees < 3) {
+      throw new FailEditAttendeesException("참여 인원은 3명 이상이어야 합니다.");
+    }
+
+    if (afterAttendees != 0 && beforeAttendees != afterAttendees) {
+      if (recruitment > afterAttendees) {
+        throw new FailEditAttendeesException("참여 인원은 남은 인원보다 커야합니다.");
+
+      } else {
+        beforeAttendees = afterAttendees;
+        remain = recruitment - beforeAttendees;
+
+      }
+    }
+    // 인원 변경 반영
+    meeting.setAttendees(beforeAttendees);
+    meeting.setRecruitment(recruitment);
+    meeting.setRemain(remain);
+
+
+    // 완료여부 체크
+    if (remain == 0) {
+      meeting.setComplete(true);
+    }
+
+    meetingRepository.save(meeting);
+    return ResponseEntity.ok().build();
+
+  }
+
+  public String compareUpdate(String before, String after) {
+    if (!after.equals("") && !before.equals(after)) {
+      return after;
+    }
+
+    return before;
+  }
+
+  @ExceptionHandler(value = {MemberQuitException.class, pointlessException.class,
+      IdNoExistException.class, MeetingNoExistException.class, MemberQuitException.class,
+      MeetingCompleteException.class, MeetingCompleteException.class,
+      FailEditAttendeesException.class, MeetingRecruitmentCompleteException.class,
+       FailEditAttendeesException.class})
+  public ResponseEntity<?> ExceptionHandler(RuntimeException exception) {
+    return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
+  }
+
+  /*
+  모임 글 삭제
+  글 삭제는 모집인원 0명일 때만 가능하다.
+  모집 완료가 된 경우에는 글을 삭제할 수 없다. 모임 펑 만 가능하다.
+  글 삭제시 delete 한다.
+   */
 
 
 }

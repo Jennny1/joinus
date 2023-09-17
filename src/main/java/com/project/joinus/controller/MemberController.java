@@ -6,18 +6,15 @@ import com.project.joinus.exception.EmailExistException;
 import com.project.joinus.exception.EmailNotFoundException;
 import com.project.joinus.exception.PasswordNotEqualException;
 import com.project.joinus.exception.UserNameExistException;
-import com.project.joinus.model.Member;
 import com.project.joinus.model.MemberDelete;
 import com.project.joinus.model.MemberInput;
 import com.project.joinus.model.MemberPasswordInput;
 import com.project.joinus.model.MemberUpdateInput;
 import com.project.joinus.repository.MemberRepository;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import javax.validation.Valid;
-import jdk.vm.ci.meta.Local;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -156,17 +153,14 @@ public class MemberController {
 
     }
 
-
     // 이메일 검사
     MemberEntity member = memberRepository.findByEmail(memberPasswordInput.getEmail())
         .orElseThrow(() -> new EmailNotFoundException("입력한 이메일이 없습니다."));
-
 
     // 입력한 비밀번호 일치 여부 확인하기
     if (!memberPasswordInput.getPassword().equals(member.getPassword())) {
       throw new PasswordNotEqualException("입력한 이메일이 동일하지 않습니다.");
     }
-
 
     // 비밀번호 일치
     member.setPassword(memberPasswordInput.getNewPassword());
@@ -201,13 +195,11 @@ public class MemberController {
     MemberEntity member = memberRepository.findByEmail(memberDelete.getEmail())
         .orElseThrow(() -> new EmailNotFoundException("입력한 이메일이 없습니다."));
 
-
     // 정보 수정
     member.setQuit(true);
     member.setPoint(0);
     member.setUpdateDate(LocalDateTime.now());
     memberRepository.save(member);
-
 
     return ResponseEntity.ok().build();
 

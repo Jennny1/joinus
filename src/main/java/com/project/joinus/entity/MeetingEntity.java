@@ -1,12 +1,19 @@
 package com.project.joinus.entity;
 
-import lombok.*;
-
-import javax.persistence.*;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -47,10 +54,39 @@ public class MeetingEntity {
   // 참석인원
   private int attendees;
 
+  // 모집인원
+  private int recruitment;
+
+  // 남은인원 (참석인원 - 모집인원)
+  private int remain;
+
   // 글 등록일
   private LocalDateTime regDate;
 
   // 글 수정일
   private LocalDateTime updateDate;
 
+
+  // 취소여부
+  private boolean isCalcled;
+
+  // 완료여부
+  private boolean isComplete;
+
+
+  public boolean isCalcled() {
+    return isCalcled;
+  }
+
+  public void setCalcled(boolean calcled) {
+    isCalcled = calcled;
+  }
+
+  public boolean isComplete() {
+    return isComplete;
+  }
+
+  public void setComplete(boolean complete) {
+    isComplete = complete;
+  }
 }

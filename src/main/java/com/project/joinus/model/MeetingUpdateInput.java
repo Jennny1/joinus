@@ -11,21 +11,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Meeting {
-
-  // 모임 아이디
-  private long meetingId;
+public class MeetingUpdateInput {
 
   // 모임 제목
-  @NotBlank(message = "모임 제목은 필수 입력 대상입니다.")
   private String title;
 
   // 모임 내용
-  @NotBlank(message = "모임 내용은 필수 입력 대상입니다.")
   private String content;
 
   // 장소
-  @NotBlank(message = "모임 장소는 필수 입력 대상입니다.")
   private String place;
 
   // 모임 날짜
