@@ -4,9 +4,11 @@ import com.project.joinus.entity.MeetingEntity;
 import com.project.joinus.entity.MemberEntity;
 import com.project.joinus.error.ResponseError;
 import com.project.joinus.exception.IdNoExistException;
+import com.project.joinus.exception.MeetingNoExistException;
 import com.project.joinus.exception.MemberQuitException;
 import com.project.joinus.exception.pointlessException;
 import com.project.joinus.model.MeetingCreateInput;
+import com.project.joinus.model.MeetingListDetail;
 import com.project.joinus.model.MeetingListInput;
 import com.project.joinus.repository.MeetingRepository;
 import com.project.joinus.repository.MemberRepository;
@@ -14,6 +16,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -152,7 +155,7 @@ public class MeetingController {
     Page<MeetingEntity> meetingList = meetingRepository.findAll(PageRequest.of(0, size,
         Direction.DESC, "regDate"));
 
-      return meetingList;
+    return meetingList;
 
   }
 
@@ -161,9 +164,11 @@ public class MeetingController {
    */
 
   @GetMapping("/list/favorit/{size}")
-  public Page<MeetingEntity> meetingListFavorit(@PathVariable int size, @RequestBody MeetingListInput meetingListInput) {
-    Page<MeetingEntity> meetingList = meetingRepository.findAllByClassification(meetingListInput.getClassification(), PageRequest.of(0, size,
-        Direction.DESC, "regDate"));
+  public Page<MeetingEntity> meetingListFavorit(@PathVariable int size,
+      @RequestBody MeetingListInput meetingListInput) {
+    Page<MeetingEntity> meetingList = meetingRepository.findAllByClassification(
+        meetingListInput.getClassification(), PageRequest.of(0, size,
+            Direction.DESC, "regDate"));
 
     return meetingList;
 
@@ -172,9 +177,16 @@ public class MeetingController {
   /*
   모임 글 상세보기
    */
+  @GetMapping("/detail/{id}")
+  public void meetingListDetail(@PathVariable long id,
+      @RequestBody MeetingListDetail meetingListDetail) {
+
+    Optional<MeetingEntity> meeting = Optional.ofNullable(meetingRepository.findById(id)
+        .orElseThrow(() -> new MeetingNoExistException("모임 글이 없습니다.")));
 
 
 
+  }
 
 
 }
