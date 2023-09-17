@@ -10,9 +10,9 @@ import com.project.joinus.model.MeetingCreateInput;
 import com.project.joinus.repository.MeetingRepository;
 import com.project.joinus.repository.MemberRepository;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import javax.persistence.Convert;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -28,11 +28,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/meet")
+@RequestMapping("/meeting")
 public class MeetingController {
 
   private final MeetingRepository meetingRepository;
   private final MemberRepository memberRepository;
+  private final long CREATE_POINT = 100;
+  private final long CREATE_POINT_LIMIT = 500;
+
 
 
     /*
@@ -70,8 +73,6 @@ public class MeetingController {
 
     }
 
-    System.out.println("회원 아이디 : " + id);
-
     // 탈퇴한 아이디 확인
     MemberEntity member = memberRepository.findById(id)
         .orElseThrow(() -> new IdNoExistException("존재하지 않는 아이디입니다."));
@@ -80,12 +81,23 @@ public class MeetingController {
       throw new MemberQuitException("탈퇴한 아이디입니다.");
     }
 
-
-    // 포인트 확인
-    if (meetingCreateInput.getMember().getPoint() < 500) {
+    // 모임생성 포인트 확인
+    if (member.getPoint() < CREATE_POINT_LIMIT) {
       throw new pointlessException("500점 이상인 회원만 모임을 생성할 수 있습니다.");
     }
 
+    System.out.println(member.getUserName() + "님, 모임을 생성할 수 있는 회원입니다.");
+    System.out.println("보유 포인트 : " + member.getPoint() + "점");
+
+
+    // 모집인원 체크 : 모임 참석인원을 지정하지 않을 경우, 3명으로 자동 지정된다.
+    if (meetingCreateInput.getAttendees() == 0) {
+      meetingCreateInput.setAttendees(3);
+    }
+
+
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+    LocalDateTime dateTime = LocalDateTime.parse(meetingCreateInput.getMeetingDate(), formatter);
 
     // 새로운 모임글 등록
     MeetingEntity meeting = MeetingEntity.builder()
@@ -93,20 +105,39 @@ public class MeetingController {
         .title(meetingCreateInput.getTitle())
         .content(meetingCreateInput.getContent())
         .place(meetingCreateInput.getPlace())
-        .meetingDate(meetingCreateInput.getMeetingDate())
-        .classification(meetingCreateInput.getContent())
+        .meetingDate(dateTime)
+        .classification(meetingCreateInput.getClassification())
         .attendees(meetingCreateInput.getAttendees())
         .isCalcled(meetingCreateInput.isCalcled())
-        .isLeader(meetingCreateInput.isLeader())
         .isComplete(meetingCreateInput.isComplete())
         .regDate(LocalDateTime.now())
         .build();
 
     meetingRepository.save(meeting);
 
+    System.out.println("모임 생성 완료");
+    System.out.println("모임생성 포인트 100점 차감, 남은 포인트 : " + member.getPoint() + "점");
+
+    long newPoint = minusPoint(id, member.getPoint());
+
+    member.setPoint(newPoint);
+    member.setLeader(true);
+    memberRepository.save(member);
+
     return ResponseEntity.ok().build();
   }
 
+  /*
+  모임 포인트 차감
+  모임글 생성할 때 포인트 100을 차감한다.
+   */
 
+  public long minusPoint(long id, long point) {
+    MemberEntity member = memberRepository.findById(id)
+        .orElseThrow(() -> new IdNoExistException("존재하지 않는 아이디입니다."));
+
+    return point - CREATE_POINT;
+
+  }
 
 }

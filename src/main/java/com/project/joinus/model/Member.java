@@ -24,6 +24,9 @@ public class Member {
   // 관심사
   private String favorit;
 
+  // 모임장여부
+  private boolean isLeader;
+
   // 포인트
   private long point;
 

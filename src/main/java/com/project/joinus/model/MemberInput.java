@@ -1,5 +1,6 @@
 package com.project.joinus.model;
 
+import javax.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -33,6 +34,9 @@ public class MemberInput {
 
   // 포인트
   private long point;
+
+  // 모임장여부
+  private boolean isLeader;
 
   // 등록일
   private LocalDateTime regDate;
