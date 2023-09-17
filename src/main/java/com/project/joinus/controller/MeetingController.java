@@ -7,6 +7,7 @@ import com.project.joinus.exception.FailDeleteMeetingException;
 import com.project.joinus.exception.FailEditAttendeesException;
 import com.project.joinus.exception.FailEditDateException;
 import com.project.joinus.exception.IdNoExistException;
+import com.project.joinus.exception.LeaderExistException;
 import com.project.joinus.exception.MeetingCompleteException;
 import com.project.joinus.exception.MeetingNoExistException;
 import com.project.joinus.exception.MeetingRecruitmentCompleteException;
@@ -57,6 +58,7 @@ public class MeetingController {
     모임 글 생성
     모임 글 생성은 포인트 500이상인 회원만 가능하다.
     모임 글을 생성한 회원은 벙주로 지칭한다.
+    한명의 벙주는 한번에 1개의 모임만 생성할 수 있다.
     모임 글을 생성하면 회원의 벙주 flag를 true로 변경한다.
     모임글 생성할 때 포인트 100을 차감한다.
     모임글을 생성할 때 제목, 내용, 장소, 모집 인원, 모임 날짜, 모임 시간을 입력받는다.
@@ -102,6 +104,12 @@ public class MeetingController {
     if (meetingCreateInput.getAttendees() == 0) {
       meetingCreateInput.setAttendees(3);
     }
+
+    // 벙주여부 확인
+    if (member.getMemberId() == 1) {
+      throw new LeaderExistException("한번에 1개의 모임만 생성할 수 있습니다.");
+    }
+
 
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
     LocalDateTime dateTime = LocalDateTime.parse(meetingCreateInput.getMeetingDate(), formatter);
