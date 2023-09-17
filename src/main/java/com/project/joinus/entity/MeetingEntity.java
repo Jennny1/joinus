@@ -47,24 +47,10 @@ public class MeetingEntity {
   // 참석인원
   private int attendees;
 
-  // 취소여부
-  private boolean isCalcled;
-
-  // 완료여부
-  private boolean isComplete;
-
   // 글 등록일
   private LocalDateTime regDate;
 
   // 글 수정일
   private LocalDateTime updateDate;
 
-
-  public boolean isCalcled() {
-    return isCalcled;
-  }
-
-  public boolean isComplete() {
-    return isComplete;
-  }
 }

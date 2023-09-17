@@ -7,6 +7,7 @@ import com.project.joinus.exception.IdNoExistException;
 import com.project.joinus.exception.MemberQuitException;
 import com.project.joinus.exception.pointlessException;
 import com.project.joinus.model.MeetingCreateInput;
+import com.project.joinus.model.MeetingListInput;
 import com.project.joinus.repository.MeetingRepository;
 import com.project.joinus.repository.MemberRepository;
 import java.time.LocalDateTime;
@@ -15,11 +16,15 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -89,12 +94,10 @@ public class MeetingController {
     System.out.println(member.getUserName() + "님, 모임을 생성할 수 있는 회원입니다.");
     System.out.println("보유 포인트 : " + member.getPoint() + "점");
 
-
     // 모집인원 체크 : 모임 참석인원을 지정하지 않을 경우, 3명으로 자동 지정된다.
     if (meetingCreateInput.getAttendees() == 0) {
       meetingCreateInput.setAttendees(3);
     }
-
 
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
     LocalDateTime dateTime = LocalDateTime.parse(meetingCreateInput.getMeetingDate(), formatter);
@@ -108,8 +111,6 @@ public class MeetingController {
         .meetingDate(dateTime)
         .classification(meetingCreateInput.getClassification())
         .attendees(meetingCreateInput.getAttendees())
-        .isCalcled(meetingCreateInput.isCalcled())
-        .isComplete(meetingCreateInput.isComplete())
         .regDate(LocalDateTime.now())
         .build();
 
@@ -118,6 +119,7 @@ public class MeetingController {
     System.out.println("모임 생성 완료");
     System.out.println("모임생성 포인트 100점 차감, 남은 포인트 : " + member.getPoint() + "점");
 
+    // 포인트 차감
     long newPoint = minusPoint(id, member.getPoint());
 
     member.setPoint(newPoint);
@@ -139,5 +141,40 @@ public class MeetingController {
     return point - CREATE_POINT;
 
   }
+
+
+  /*
+  모임 전체 글 보기
+  최근글 노출
+   */
+  @GetMapping("/list/latest/{size}")
+  public Page<MeetingEntity> meetingListLatest(@PathVariable int size) {
+    Page<MeetingEntity> meetingList = meetingRepository.findAll(PageRequest.of(0, size,
+        Direction.DESC, "regDate"));
+
+      return meetingList;
+
+  }
+
+  /*
+  관심사별 글 보기
+   */
+
+  @GetMapping("/list/favorit/{size}")
+  public Page<MeetingEntity> meetingListFavorit(@PathVariable int size, @RequestBody MeetingListInput meetingListInput) {
+    Page<MeetingEntity> meetingList = meetingRepository.findAllByClassification(meetingListInput.getClassification(), PageRequest.of(0, size,
+        Direction.DESC, "regDate"));
+
+    return meetingList;
+
+  }
+
+  /*
+  모임 글 상세보기
+   */
+
+
+
+
 
 }

@@ -37,12 +37,6 @@ public class MeetingCreateInput {
   // 모임 분류
   private String classification;
 
-  // 취소여부
-  private boolean isCalcled;
-
-  // 완료여부
-  private boolean isComplete;
-
   // 글 등록일
   private LocalDateTime regDate;
 
