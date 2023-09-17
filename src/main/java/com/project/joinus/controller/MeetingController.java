@@ -17,6 +17,7 @@ import com.project.joinus.model.MeetingCreateInput;
 import com.project.joinus.model.MeetingListDetail;
 import com.project.joinus.model.MeetingListInput;
 import com.project.joinus.model.MeetingUpdateInput;
+import com.project.joinus.model.Member;
 import com.project.joinus.repository.MeetingRepository;
 import com.project.joinus.repository.MemberRepository;
 import java.time.LocalDateTime;
@@ -109,7 +110,6 @@ public class MeetingController {
     if (member.getMemberId() == 1) {
       throw new LeaderExistException("한번에 1개의 모임만 생성할 수 있습니다.");
     }
-
 
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
     LocalDateTime dateTime = LocalDateTime.parse(meetingCreateInput.getMeetingDate(), formatter);
@@ -318,7 +318,7 @@ public class MeetingController {
   글 삭제시 delete 한다.
  */
   @DeleteMapping("/delete/{id}")
-  public void meetingDelete(@PathVariable long id) {
+  public ResponseEntity<?> meetingDelete(@PathVariable long id) {
     MeetingEntity meeting = meetingRepository.findById(id)
         .orElseThrow(() -> new MeetingNoExistException("모임 글이 없습니다."));
 
@@ -334,10 +334,33 @@ public class MeetingController {
 
     meetingRepository.delete(meeting);
 
+    return ResponseEntity.ok().build();
   }
 
+  /*
+  모임 펑 기능
+  모임 펑 기능은 벙주 flag가 true일 때만 가능하다.
+  모임 펑을 신청하면 모임펑 flag 가 true로 변경된다.
+  모임 펑이 된 경우 벙주에게 모임 생성시 사용한 포인트 100점을 돌려준다.
+  모임 펑이 된 경우 모임을 신청한 회원에 포인트 50점을 돌려준다.
+   */
+  @PatchMapping("pung/{id}")
+  public ResponseEntity<?> MeetingPung(@PathVariable long id) {
+    MeetingEntity meeting = meetingRepository.findById(id)
+        .orElseThrow(() -> new MeetingNoExistException("모임 글이 없습니다."));
 
+    // 벙주 여부 확인
+    if (meeting.getMember().getMemberId() == 0) {
+      throw new LeaderExistException("벙주만 모임을 펑할 수 있습니다.");
+    }
 
+    //
+    meeting.setCalcled(true);
+    meetingRepository.save(meeting);
+
+    return ResponseEntity.ok().build();
+
+  }
 
 
   public String compareUpdate(String before, String after) {
