@@ -3,6 +3,7 @@ package com.project.joinus.controller;
 import com.project.joinus.entity.MeetingEntity;
 import com.project.joinus.entity.MemberEntity;
 import com.project.joinus.error.ResponseError;
+import com.project.joinus.exception.FailDeleteMeetingException;
 import com.project.joinus.exception.FailEditAttendeesException;
 import com.project.joinus.exception.FailEditDateException;
 import com.project.joinus.exception.IdNoExistException;
@@ -30,6 +31,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -290,7 +292,6 @@ public class MeetingController {
     meeting.setRecruitment(recruitment);
     meeting.setRemain(remain);
 
-
     // 완료여부 체크
     if (remain == 0) {
       meeting.setComplete(true);
@@ -301,6 +302,36 @@ public class MeetingController {
 
   }
 
+
+  /*
+  모임 글 삭제
+  글 삭제는 모집인원 0명일 때만 가능하다.
+  모집 완료가 된 경우에는 글을 삭제할 수 없다. 모임 펑 만 가능하다.
+  글 삭제시 delete 한다.
+ */
+  @DeleteMapping("/delete/{id}")
+  public void meetingDelete(@PathVariable long id) {
+    MeetingEntity meeting = meetingRepository.findById(id)
+        .orElseThrow(() -> new MeetingNoExistException("모임 글이 없습니다."));
+
+    // 모집인원 검사
+    if (meeting.getRecruitment() >= 2) {
+      throw new FailDeleteMeetingException("글 삭제는 모집인원 0명일 때만 가능합니다.");
+    }
+
+    // 모집완료 검사
+    if (meeting.isComplete()) {
+      throw new FailDeleteMeetingException("모집 완료가 된 경우에는 글 삭제가 불가합니다.");
+    }
+
+    meetingRepository.delete(meeting);
+
+  }
+
+
+
+
+
   public String compareUpdate(String before, String after) {
     if (!after.equals("") && !before.equals(after)) {
       return after;
@@ -309,21 +340,15 @@ public class MeetingController {
     return before;
   }
 
+
   @ExceptionHandler(value = {MemberQuitException.class, pointlessException.class,
       IdNoExistException.class, MeetingNoExistException.class, MemberQuitException.class,
       MeetingCompleteException.class, MeetingCompleteException.class,
       FailEditAttendeesException.class, MeetingRecruitmentCompleteException.class,
-       FailEditAttendeesException.class})
+      FailEditAttendeesException.class, FailDeleteMeetingException.class})
   public ResponseEntity<?> ExceptionHandler(RuntimeException exception) {
     return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
   }
-
-  /*
-  모임 글 삭제
-  글 삭제는 모집인원 0명일 때만 가능하다.
-  모집 완료가 된 경우에는 글을 삭제할 수 없다. 모임 펑 만 가능하다.
-  글 삭제시 delete 한다.
-   */
 
 
 }
