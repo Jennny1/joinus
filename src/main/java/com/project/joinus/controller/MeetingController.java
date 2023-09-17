@@ -17,7 +17,6 @@ import com.project.joinus.model.MeetingCreateInput;
 import com.project.joinus.model.MeetingListDetail;
 import com.project.joinus.model.MeetingListInput;
 import com.project.joinus.model.MeetingUpdateInput;
-import com.project.joinus.model.Member;
 import com.project.joinus.repository.MeetingRepository;
 import com.project.joinus.repository.MemberRepository;
 import java.time.LocalDateTime;
@@ -354,8 +353,12 @@ public class MeetingController {
       throw new LeaderExistException("벙주만 모임을 펑할 수 있습니다.");
     }
 
-    //
+    // 모임 펑 여부 true로 변경
     meeting.setCalcled(true);
+
+    // 포인트 돌려주기
+    meeting.setMember(MemberEntity.builder().point(meeting.getMember().getPoint() + 100).build());
+
     meetingRepository.save(meeting);
 
     return ResponseEntity.ok().build();

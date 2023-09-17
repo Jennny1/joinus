@@ -67,7 +67,7 @@ public class MeetingEntity {
   private LocalDateTime updateDate;
 
 
-  // 취소여부
+  // 취소여부(펑여부)
   private boolean isCalcled;
 
   // 완료여부

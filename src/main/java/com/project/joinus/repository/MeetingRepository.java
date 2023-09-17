@@ -10,7 +10,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface MeetingRepository extends JpaRepository<MeetingEntity, Long> {
 
-  Page<MeetingEntity> findAllByClassification(String classification, PageRequest regDate);
-
 
 }
