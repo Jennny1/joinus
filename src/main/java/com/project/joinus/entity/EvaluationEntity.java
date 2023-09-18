@@ -29,5 +29,8 @@ public class EvaluationEntity {
   @JoinColumn
   private MeetingEntity meeting;
 
+  // 포인트
+  private long point;
+
 
 }
