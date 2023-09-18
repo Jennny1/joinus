@@ -73,7 +73,6 @@ public class MeetingEntity {
   // 완료여부
   private boolean isComplete;
 
-
   public boolean isCalcled() {
     return isCalcled;
   }

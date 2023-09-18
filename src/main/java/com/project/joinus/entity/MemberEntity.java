@@ -51,6 +51,7 @@ public class MemberEntity {
     @Column
     private boolean isLeader;
 
+
     // 수정일
     @Column
     private LocalDateTime updateDate;
