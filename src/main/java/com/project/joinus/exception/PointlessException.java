@@ -1,7 +1,7 @@
 package com.project.joinus.exception;
 
-public class pointlessException extends RuntimeException{
-    public pointlessException(String s) {
+public class PointlessException extends RuntimeException{
+    public PointlessException(String s) {
         super(s);
     }
 }

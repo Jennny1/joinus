@@ -28,6 +28,8 @@ public class ReserveEntity {
   @JoinColumn
   private MeetingEntity meeting;
 
+  // 종료여부
+  private boolean isComplete;
 
 
 }
